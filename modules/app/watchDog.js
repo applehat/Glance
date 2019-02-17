@@ -11,14 +11,14 @@
  * ------------------------------------------------
  */
 
-import asap from "fitbit-asap/app"
 
-// Send data
-export function send(data) {
-	console.log('app - transfer - send')
-	// Send a command to the companion
-	asap.send({
-		command: 'forceCompanionTransfer',
-		data: data,
-	});
+
+
+import { memory } from "system";
+
+
+console.log('\n\n\n\n\nYEEEEEEEEEEEEET\n\n\n\n\n\n\n');
+
+export function reportMemory() {
+	console.log("JS memory: " + memory.js.used + "/" + memory.js.total);
 }

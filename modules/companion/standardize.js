@@ -18,496 +18,496 @@ import Logs from "./logs.js";
 const logs = new Logs();
 
 // this module handles standardizing return data from various APIS
-export default class standardize {
-	// Expected values in return array of bloodsugars
-	// sgv:
-	// datetime:
-	// bgdelta:
-	bloodsugars(data, extraData, settings) {
-		logs.add('Line 29: companion - standardize - bloodsugars()');
-		logs.add('Line 30: companion - standardize - bloodsugars() - PARAMERTERS');
-		logs.add(`data: ${JSON.stringify(data)}}`);
-		logs.add(`extraData ${JSON.stringify(extraData)}`);
-		settings.dexcomUsername = '';
-		settings.dexcomPassword = '';
-		logs.add(`settings ${JSON.stringify(settings)}`);
 
-		let bgs = data;
-		let rawbg = '';
-		let tempBasal = '';
-		let predictedBg = '';
-		let loopStatus = '';
-		let upbat = '';
-		let sage = ''
-		if (bgs && !data.error && data && bgs !== 'undefined') {
-			if (settings.dataSource === 'nightscout') {
-				bgs = data.bgs;
-				// SPIKE WORK AROUND
-				// this check is here for old versions of spike where the /pebble endpoint was returning mmol svg data
-				if (bgs[0].sgv < 25) {
-					bgs.forEach((bg) => {
-						bg.sgv = mgdl(bg.sgv)
-					});
-					bgs[0].bgdelta = mgdl(bgs[0].bgdelta)
-				} // END OF SPIKE WORK AROUND
+// Expected values in return array of bloodsugars
+// sgv:
+// datetime:
+// bgdelta:
+export function bloodsugars(data, extraData, settings) {
+	logs.add('Line 29: companion - standardize - bloodsugars()');
+	logs.add('Line 30: companion - standardize - bloodsugars() - PARAMERTERS');
+	logs.add(`data: ${JSON.stringify(data)}}`);
+	logs.add(`extraData ${JSON.stringify(extraData)}`);
+	settings.dexcomUsername = '';
+	settings.dexcomPassword = '';
+	logs.add(`settings ${JSON.stringify(settings)}`);
 
-				let standardizedExtraData = standardizeExtraData(bgs, extraData, settings);
-				bgs = standardizedExtraData.bgs;
-				rawbg = standardizedExtraData.rawbg;
-				tempBasal = standardizedExtraData.tempBasal;
-				predictedBg = standardizedExtraData.predictedBg;
-				loopStatus = standardizedExtraData.loopStatus;
-				upbat = standardizedExtraData.upbat;
-				sage = standardizedExtraData.sage;
-				// add any extra data
-			} else if (settings.dataSource === 'xdrip') { // xdrip using the sgv endpoint still
-				bgs = data;
-				if (Array.isArray(bgs)) {
-					bgs[0].datetime = bgs[0].date;
-					bgs[0].bgdelta = bgs[0].sgv - bgs[1].sgv; //element.delta;
-				} else {
-					bgs = null;
-				}
-			} else if (settings.dataSource === 'spike') {
-				bgs = data.bgs;
-			} else if (settings.dataSource === 'custom') {
-				bgs = data.bgs;
-			} else if (settings.dataSource === 'dexcom') {
-				let bgsTemplate = {
-					bgs: [{
-							sgv: '120',
-							bgdelta: 0,
-							iob: 0,
-							cob: 0,
-							datetime: null,
-							direction: 'flat',
-							currentbg: (data.error ? ('E' + data.error.status) : 'DSE'),
-							rawbg: '',
-							tempbasal: '',
-							loopstatus: '',
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						},
-						{
-							sgv: '120'
-						}
-					]
-				}
-				// bgs.length = 47;
-				// bgsTemplate
-				bgs.forEach((bg, index) => {
-					bgsTemplate.bgs[index].sgv = bg.Value;
-					let dateTime = bg.ST.substring(
-						bg.ST.lastIndexOf("(") + 1,
-						bg.ST.lastIndexOf(")")
-					);
-					bgsTemplate.bgs[index].datetime = parseInt(dateTime);
-
-					if (index === 0) {
-
-						let delta = (bgs[0].Value - bgs[1].Value);
-						// Set values to template
-						bgsTemplate.bgs[index].direction = caculateTrendArrow(bgs[0].Value - bgs[5].Value, bgs);
-						bgsTemplate.bgs[index].bgdelta = delta;
-					}
-				})
-				logs.add("Standardized dexcom data " + bgsTemplate.bgs)
-				bgs = bgsTemplate.bgs;
-			} // End of dexcom endpoint
-
-			// Look for current non Predictive bg and not the last 5 predictions
-			// this works because only the current bg has a delta so we can filter for it
-			let nonPredictiveBg = bgs.filter(bg => bg.bgdelta)[0];
-
-			let hasFoundFirstDelta = false;
-			bgs.forEach((bg) => {
-				if (bg.bgdelta != null && !hasFoundFirstDelta) {
-					nonPredictiveBg = bg;
-					hasFoundFirstDelta = true;
-				}
-			})
-			console.log(nonPredictiveBg)
-			// Look at the data that we are getting and if the SGV is below 25 we know the unit type is mmol
-			if (nonPredictiveBg.sgv < 25) {
+	let bgs = data;
+	let rawbg = '';
+	let tempBasal = '';
+	let predictedBg = '';
+	let loopStatus = '';
+	let upbat = '';
+	let sage = ''
+	if (bgs && !data.error && data && bgs !== 'undefined') {
+		if (settings.dataSource === 'nightscout') {
+			bgs = data.bgs;
+			// SPIKE WORK AROUND
+			// this check is here for old versions of spike where the /pebble endpoint was returning mmol svg data
+			if (bgs[0].sgv < 25) {
 				bgs.forEach((bg) => {
 					bg.sgv = mgdl(bg.sgv)
 				});
-				nonPredictiveBg.bgdelta = mgdl(nonPredictiveBg.bgdelta)
+				bgs[0].bgdelta = mgdl(bgs[0].bgdelta)
+			} // END OF SPIKE WORK AROUND
+
+			let standardizedExtraData = standardizeExtraData(bgs, extraData, settings);
+			bgs = standardizedExtraData.bgs;
+			rawbg = standardizedExtraData.rawbg;
+			tempBasal = standardizedExtraData.tempBasal;
+			predictedBg = standardizedExtraData.predictedBg;
+			loopStatus = standardizedExtraData.loopStatus;
+			upbat = standardizedExtraData.upbat;
+			sage = standardizedExtraData.sage;
+			// add any extra data
+		} else if (settings.dataSource === 'xdrip') { // xdrip using the sgv endpoint still
+			bgs = data;
+			if (Array.isArray(bgs)) {
+				bgs[0].datetime = bgs[0].date;
+				bgs[0].bgdelta = bgs[0].sgv - bgs[1].sgv; //element.delta;
+			} else {
+				bgs = null;
 			}
-
-			let currentBG = nonPredictiveBg.sgv;
-
-			// Convert any values to desired units type
-			if (settings.glucoseUnits === 'mmol') {
-				currentBG = mmol(currentBG)
-				rawbg = mmol(rawbg);
-				nonPredictiveBg.bgdelta = mmol(nonPredictiveBg.bgdelta);
+		} else if (settings.dataSource === 'spike') {
+			bgs = data.bgs;
+		} else if (settings.dataSource === 'custom') {
+			bgs = data.bgs;
+		} else if (settings.dataSource === 'dexcom') {
+			let bgsTemplate = {
+				bgs: [{
+						sgv: '120',
+						bgdelta: 0,
+						iob: 0,
+						cob: 0,
+						datetime: null,
+						direction: 'flat',
+						currentbg: (data.error ? ('E' + data.error.status) : 'DSE'),
+						rawbg: '',
+						tempbasal: '',
+						loopstatus: '',
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					},
+					{
+						sgv: '120'
+					}
+				]
 			}
+			// bgs.length = 47;
+			// bgsTemplate
+			bgs.forEach((bg, index) => {
+				bgsTemplate.bgs[index].sgv = bg.Value;
+				let dateTime = bg.ST.substring(
+					bg.ST.lastIndexOf("(") + 1,
+					bg.ST.lastIndexOf(")")
+				);
+				bgsTemplate.bgs[index].datetime = parseInt(dateTime);
 
-			checkTimeBetweenGraphPoints(bgs, nonPredictiveBg)
+				if (index === 0) {
 
-			// remove any keys/values that we dont use from responce
-			let propsToRemove = ['date', 'delta', 'dateString', 'dateString', 'units_hint', 'type', 'rssi', 'sysTime', 'device', '_id', 'direction', 'bwpo', 'noise', 'trend', 'filtered', 'unfiltered', 'battery', 'bwp'];
-			let cleanedBgs = bgs.map(tempBgs => {
-				let temp = Object.keys(tempBgs).reduce((object, key) => {
-					if (!(propsToRemove.includes(key))) {
-						object[key] = tempBgs[key];
-					}
-					return object;
-				}, {})
-				return temp;
-			});
-
-
-			// The only BG that will have a bgdelta will be the current one
-			// Add other important info to current bg in sgv array
-			cleanedBgs.map((bg) => {
-				if (bg.bgdelta != null) {
-					// any values put here will be able to be entered in the layout
-					bg.sgv = bg.sgv;
-					if (bg.iob) {
-						bg.iob = Math.round((Number(bg.iob) + 0.00001) * 100) / 100 //parseInt(bg.iob, 10).toFixed(1);
-					} else {
-						bg.iob = 0;
-					}
-					if (bg.cob) {
-						bg.cob = Math.round((Number(bg.cob, 10) + 0.00001) * 100) / 100
-					} else {
-						bg.cob = 0;
-					}
-					bg.datetime = nonPredictiveBg.datetime;
-					bg.direction = nonPredictiveBg.direction;
-					bg.rawbg = ((rawbg && rawbg !== '0.0') ? (rawbg + ' raw') : '');
-					bg.tempbasal = tempBasal;
-					bg.currentbg = currentBG;
-					bg.predictedbg = predictedBg;
-					bg.loopstatus = checkLoopStatus(loopStatus);
-					bg.upbat = upbat;
-					bg.sage = ((sage) ? ( 'SA:' + sage) : '');
-					if (nonPredictiveBg.direction === 'NOT COMPUTABLE') {
-						bg.direction = 'none';
-					}
-					return bg;
+					let delta = (bgs[0].Value - bgs[1].Value);
+					// Set values to template
+					bgsTemplate.bgs[index].direction = caculateTrendArrow(bgs[0].Value - bgs[5].Value, bgs);
+					bgsTemplate.bgs[index].bgdelta = delta;
 				}
-				return bg;
-			});
+			})
+			logs.add("Standardized dexcom data " + bgsTemplate.bgs)
+			bgs = bgsTemplate.bgs;
+		} // End of dexcom endpoint
 
-			logs.add('Line 151:  companion - standardize cleanedBgs' + JSON.stringify(cleanedBgs))
+		// Look for current non Predictive bg and not the last 5 predictions
+		// this works because only the current bg has a delta so we can filter for it
+		let nonPredictiveBg = bgs.filter(bg => bg.bgdelta)[0];
 
-			let returnBloodsugars = {
-				bgs: cleanedBgs,
+		let hasFoundFirstDelta = false;
+		bgs.forEach((bg) => {
+			if (bg.bgdelta != null && !hasFoundFirstDelta) {
+				nonPredictiveBg = bg;
+				hasFoundFirstDelta = true;
 			}
-
-			// console.warn(sizeof(returnBloodsugars) + ' bytes')
-			// logs.add(JSON.stringify(cleanedBgs))
-			// console.warn(sizeof(cleanedBgs) + ' bytes')
-			// console.warn(sizeof(JSON.stringify(cleanedBgs)) + ' bytes')
-
-
-			return returnBloodsugars;
-			//}
+		})
+		console.log(nonPredictiveBg)
+		// Look at the data that we are getting and if the SGV is below 25 we know the unit type is mmol
+		if (nonPredictiveBg.sgv < 25) {
+			bgs.forEach((bg) => {
+				bg.sgv = mgdl(bg.sgv)
+			});
+			nonPredictiveBg.bgdelta = mgdl(nonPredictiveBg.bgdelta)
 		}
-		logs.add('Line 63: here reurning error')
-		let currentTime = new Date();
-		console.error("currentTime---------------------------")
-		console.error(currentTime)
-		return {
-			bgs: [{
-					sgv: '120',
-					bgdelta: 0,
-					iob: 0,
-					cob: 0,
-					datetime: currentTime.getTime(),
-					direction: 'warning',
-					currentbg: (data.error ? ('E' + data.error.status) : 'DSE'),
-					rawbg: '',
-					tempbasal: '',
-					loopstatus: '',
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				},
-				{
-					sgv: '120'
-				}
-			]
-		}
-	}
-	settings(settings) {
-		logs.add('Line 212: companion - standardize - settings()');
+
+		let currentBG = nonPredictiveBg.sgv;
+
 		// Convert any values to desired units type
 		if (settings.glucoseUnits === 'mmol') {
-			settings.highThreshold = mgdl(settings.highThreshold);
-			settings.lowThreshold = mgdl(settings.lowThreshold);
+			currentBG = mmol(currentBG)
+			rawbg = mmol(rawbg);
+			nonPredictiveBg.bgdelta = mmol(nonPredictiveBg.bgdelta);
 		}
-		return settings;
+
+		checkTimeBetweenGraphPoints(bgs, nonPredictiveBg)
+
+		// remove any keys/values that we dont use from responce
+		let propsToRemove = ['date', 'delta', 'dateString', 'dateString', 'units_hint', 'type', 'rssi', 'sysTime', 'device', '_id', 'direction', 'bwpo', 'noise', 'trend', 'filtered', 'unfiltered', 'battery', 'bwp'];
+		let cleanedBgs = bgs.map(tempBgs => {
+			let temp = Object.keys(tempBgs).reduce((object, key) => {
+				if (!(propsToRemove.includes(key))) {
+					object[key] = tempBgs[key];
+				}
+				return object;
+			}, {})
+			return temp;
+		});
+
+
+		// The only BG that will have a bgdelta will be the current one
+		// Add other important info to current bg in sgv array
+		cleanedBgs.map((bg) => {
+			if (bg.bgdelta != null) {
+				// any values put here will be able to be entered in the layout
+				bg.sgv = bg.sgv;
+				if (bg.iob) {
+					bg.iob = Math.round((Number(bg.iob) + 0.00001) * 100) / 100 //parseInt(bg.iob, 10).toFixed(1);
+				} else {
+					bg.iob = 0;
+				}
+				if (bg.cob) {
+					bg.cob = Math.round((Number(bg.cob, 10) + 0.00001) * 100) / 100
+				} else {
+					bg.cob = 0;
+				}
+				bg.datetime = nonPredictiveBg.datetime;
+				bg.direction = nonPredictiveBg.direction;
+				bg.rawbg = ((rawbg && rawbg !== '0.0') ? (rawbg + ' raw') : '');
+				bg.tempbasal = tempBasal;
+				bg.currentbg = currentBG;
+				bg.predictedbg = predictedBg;
+				bg.loopstatus = checkLoopStatus(loopStatus);
+				bg.upbat = upbat;
+				bg.sage = ((sage) ? ( 'SA:' + sage) : '');
+				if (nonPredictiveBg.direction === 'NOT COMPUTABLE') {
+					bg.direction = 'none';
+				}
+				return bg;
+			}
+			return bg;
+		});
+
+		logs.add('Line 151:  companion - standardize cleanedBgs' + JSON.stringify(cleanedBgs))
+
+		let returnBloodsugars = {
+			bgs: cleanedBgs,
+		}
+
+		// console.warn(sizeof(returnBloodsugars) + ' bytes')
+		// logs.add(JSON.stringify(cleanedBgs))
+		// console.warn(sizeof(cleanedBgs) + ' bytes')
+		// console.warn(sizeof(JSON.stringify(cleanedBgs)) + ' bytes')
+
+
+		return returnBloodsugars;
+		//}
 	}
-};
+	logs.add('Line 63: here reurning error')
+	let currentTime = new Date();
+	console.error("currentTime---------------------------")
+	console.error(currentTime)
+	return {
+		bgs: [{
+				sgv: '120',
+				bgdelta: 0,
+				iob: 0,
+				cob: 0,
+				datetime: currentTime.getTime(),
+				direction: 'warning',
+				currentbg: (data.error ? ('E' + data.error.status) : 'DSE'),
+				rawbg: '',
+				tempbasal: '',
+				loopstatus: '',
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			},
+			{
+				sgv: '120'
+			}
+		]
+	}
+}
+export function settings(settings) {
+	logs.add('Line 212: companion - standardize - settings()');
+	// Convert any values to desired units type
+	if (settings.glucoseUnits === 'mmol') {
+		settings.highThreshold = mgdl(settings.highThreshold);
+		settings.lowThreshold = mgdl(settings.lowThreshold);
+	}
+	return settings;
+}
+
 
 //helper functions
 // converts a mg/dL to mmoL

@@ -17,30 +17,28 @@ import Logs from "./logs.js";
 const logs = new Logs();
 
 
-export default class messaging {
-	//Fetch data from an API endpoint and return a promise
-	async get(url) {
-		const trimmedURL = url.replace(/ /g, "");
-		logs.add('Line 16: companion - fetch - get() ' + trimmedURL)
-		return await fetch(trimmedURL)
-			.then(handleResponse)
-			.then((data) => {
-				logs.add(`Line 28: companion - fetch - get() Data Okay return`)
-				return data;
-			}).catch((error) => {
-				// not found
-				if (!error.status) {
-					error.status = '404'
-				}
-				logs.add(`Line 35 ERROR companion - fetch - get() ${JSON.stringify(error)}`)
-				let errorMsg = {
-					text: 'Line 38: Error with companion - fetch - get()',
-					error: error,
-					url: trimmedURL,
-				}
-				return errorMsg;
-			});
-	};
+//Fetch data from an API endpoint and return a promise
+export async function get(url) {
+	const trimmedURL = url.replace(/ /g, "");
+	logs.add('Line 16: companion - fetch - get() ' + trimmedURL)
+	return await fetch(trimmedURL)
+		.then(handleResponse)
+		.then((data) => {
+			logs.add(`Line 28: companion - fetch - get() Data Okay return`)
+			return data;
+		}).catch((error) => {
+			// not found
+			if (!error.status) {
+				error.status = '404'
+			}
+			logs.add(`Line 35 ERROR companion - fetch - get() ${JSON.stringify(error)}`)
+			let errorMsg = {
+				text: 'Line 38: Error with companion - fetch - get()',
+				error: error,
+				url: trimmedURL,
+			}
+			return errorMsg;
+		});
 };
 
 function handleResponse(response) {

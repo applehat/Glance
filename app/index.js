@@ -18,25 +18,18 @@ import { inbox } from "file-transfer";
 import fs from "fs";
 import { vibration } from "haptics";
 import DateTime from "../modules/app/dateTime.js";
-import BatteryLevels from "../modules/app/batteryLevels.js";
-import Graph from "../modules/app/bloodline.js"
-import UserActivity from "../modules/app/userActivity.js"
-import Alerts from "../modules/app/alerts.js"
-import Errors from "../modules/app/errors.js"
-import Transfer from "../modules/app/transfer.js"
+import * as batteryLevels from "../modules/app/batteryLevels.js";
+import * as graph from "../modules/app/bloodline.js"
+import * as userActivity from "../modules/app/userActivity.js"
+import * as alerts from "../modules/app/alerts.js"
+import * as errors from "../modules/app/errors.js"
+import * as transfer from "../modules/app/transfer.js"
 // import { preferences, save, load } from "../modules/app/sharedPreferences";
-import { memory } from "system";
-
+// import { memory } from "system";
 import asap from "fitbit-asap/app";
-
+import * as watchDog from "../modules/app/watchDog";
 
 const dateTime = new DateTime();
-const batteryLevels = new BatteryLevels();
-const graph = new Graph();
-const userActivity = new UserActivity();
-const alerts = new Alerts();
-const errors = new Errors();
-const transfer = new Transfer();
 
 let main = document.getElementById("main");
 let sgv = document.getElementById("sgv");
@@ -178,7 +171,8 @@ inbox.onnewfile = () => {
 
 function update() {
 	console.log('app - update()');
-	console.warn("JS memory: " + memory.js.used + "/" + memory.js.total);
+	//console.warn("JS memory: " + memory.js.used + "/" + memory.js.total);
+	watchDog.reportMemory();
 	let heartrate = userActivity.get().heartRate;
 	if (!heartrate) {
 		heartrate = 0;

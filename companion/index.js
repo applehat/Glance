@@ -13,23 +13,17 @@
 
 import { settingsStorage } from "settings";
 
-import Settings from "../modules/companion/settings.js";
-import Transfer from "../modules/companion/transfer.js";
-import Fetch from "../modules/companion/fetch.js";
-import Standardize from "../modules/companion/standardize.js";
+import * as settings from "../modules/companion/settings.js";
+import * as transfer from "../modules/companion/transfer.js";
+import * as fetch from "../modules/companion/fetch.js";
+import * as standardize from "../modules/companion/standardize.js";
 // import Weather from "../modules/companion/weather.js";
 import Logs from "../modules/companion/logs.js";
 import sizeof from 'object-sizeof';
-import Dexcom from "../modules/companion/dexcom.js";
+import * as dexcom from "../modules/companion/dexcom.js";
 
 import asap from "fitbit-asap/companion"
 import { me } from "companion";
-
-const settings = new Settings();
-const transfer = new Transfer();
-const fetch = new Fetch();
-const standardize = new Standardize();
-const dexcom = new Dexcom();
 
 
 // const weatherURL = new Weather();

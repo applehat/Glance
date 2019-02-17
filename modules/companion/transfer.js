@@ -22,21 +22,19 @@ import asap from 'fitbit-asap/companion';
 import sizeof from 'object-sizeof';
 import { peerSocket } from "messaging";
 
-export default class transfer {
-	// Send data to the watchface
-	send(data) {
-		let dataSize = sizeof(data);
-		let maxSize = peerSocket.MAX_MESSAGE_SIZE;
-		logs.add('Line 19: companion - transfer - send()')
-		if (dataSize <= maxSize) {
-			logs.add(` --> Data size is ${dataSize} / ${maxSize}, Sending through asap messaging.`);
-			asap.send({
-				command: "file",
-				data: data
-			});
-		} else {
-			logs.add(` --> Data size is ${dataSize} / ${maxSize}, Sending through file transfer.`);
-			outbox.enqueue("payload.json", encode(data));
-		}
+// Send data to the watchface
+export function send(data) {
+	let dataSize = sizeof(data);
+	let maxSize = peerSocket.MAX_MESSAGE_SIZE;
+	logs.add('Line 19: companion - transfer - send()')
+	if (dataSize <= maxSize) {
+		logs.add(` --> Data size is ${dataSize} / ${maxSize}, Sending through asap messaging.`);
+		asap.send({
+			command: "file",
+			data: data
+		});
+	} else {
+		logs.add(` --> Data size is ${dataSize} / ${maxSize}, Sending through file transfer.`);
+		outbox.enqueue("payload.json", encode(data));
 	}
 }
