@@ -13,7 +13,7 @@
 
 
 export function getDate(dateFormat, enableDOW) {
-	console.log('app - dateTime - getDate()')
+	//console.log('app - dateTime - getDate()')
 	let dateObj = new Date();
 	let month = ('0' + (dateObj.getMonth() + 1)).slice(-2);
 	let date = ('0' + dateObj.getDate()).slice(-2);
@@ -43,7 +43,7 @@ export function getDate(dateFormat, enableDOW) {
 }
 
 export function getTime(timeFormat) {
-	console.log('app - dateTime - getTime()')
+	//console.log('app - dateTime - getTime()')
 	let timeNow = new Date();
 	let hh = timeNow.getHours();
 	let mm = timeNow.getMinutes();
@@ -62,7 +62,7 @@ export function getTime(timeFormat) {
 	return hh + ':' + mm;
 }
 export function getTimeSenseLastSGV(sgvDateTime) {
-	console.log('app - dateTime - getTimeSenseLastSGV()')
+	//console.log('app - dateTime - getTimeSenseLastSGV()')
 	let currentTime = new Date();
 	let lastSGVTime = new Date(sgvDateTime);
 	let secondsDiff = (currentTime.getTime() - lastSGVTime.getTime())/1000

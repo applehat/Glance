@@ -14,7 +14,7 @@
 import { settingsStorage } from "settings";
 
 import * as settings from "./settings";
-import * as transfer from "./transfer";
+import * as transport from "./transport";
 import * as fetch from "./fetch";
 import * as standardize from "./standardize";
 // import Weather from "./weather.js";
@@ -34,7 +34,6 @@ async function sendData() {
 	logs.add('companion - sendData: Version: 2.1.100')
 	// Get settings
 	const store = await settings.get(dataReceivedFromWatch);
-
 
 	// Get SGV data
 	let bloodsugars = null;
@@ -74,30 +73,17 @@ async function sendData() {
 		};
 		logs.add('Line 59: companion - sendData - DataToSend size: ' + sizeof(dataToSend) + ' bytes')
 		logs.add('Line 60: companion - sendData - DataToSend: ' + JSON.stringify(dataToSend))
-		transfer.send(dataToSend);
+		transport.sendPayload(dataToSend);
 	});
 }
 
-asap.ondebug = (msg) => {
-	console.log('--- FITBIT ASAP---',msg);
-}
 
-// Listen for messages from the device
-asap.onmessage = function (evt) {
-	if (evt.command === 'forceCompanionTransfer') {
-		logs.add('Line 58: companion - Watch to Companion Transfer request')
-		// pass in data that was recieved from the watch
-		console.log(JSON.stringify(evt.data));
-		dataReceivedFromWatch = evt.data;
-		sendData()
-	}
-};
-
-// Listen for the onerror event
-//messaging.peerSocket.onerror = function(err) {
-// Handle any errors
-//  console.log("Connection error: " + err.code + " - " + err.message);
-//};
+transport.onDoCompanionTransport((data)=>{
+	console.log('Received request from watch to do a data transport');
+	//console.log(JSON.stringify(evt.data));
+	dataReceivedFromWatch = data;
+	sendData()
+})
 
 settingsStorage.onchange = function (evt) {
 	logs.add('Line 70: companion - Settings changed send to watch');

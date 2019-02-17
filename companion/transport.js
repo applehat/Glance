@@ -23,7 +23,7 @@ import sizeof from 'object-sizeof';
 import { peerSocket } from "messaging";
 
 // Send data to the watchface
-export function send(data) {
+export function sendPayload(data) {
 	let dataSize = sizeof(data);
 	let maxSize = peerSocket.MAX_MESSAGE_SIZE;
 	logs.add('Line 19: companion - transfer - send()')
@@ -38,3 +38,15 @@ export function send(data) {
 		outbox.enqueue("payload.json", encode(data));
 	}
 }
+
+let doCompanionTransport = (data) => {  };
+export function onDoCompanionTransport(func) {
+	doCompanionTransport = func;
+}
+
+// Listen for messages from the device
+asap.onmessage = function (evt) {
+	if (evt.command === 'doCompanionTransport') {
+		doCompanionTransport(evt.data);
+	}
+};

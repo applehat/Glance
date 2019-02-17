@@ -14,8 +14,6 @@
 
 
 import document from "document";
-import { inbox } from "file-transfer";
-import fs from "fs";
 import { vibration } from "haptics";
 import * as dateTime from "../common/dateTime";
 import * as batteryLevels from "./batteryLevels";
@@ -23,12 +21,10 @@ import * as graph from "./bloodline"
 import * as userActivity from "./userActivity"
 import * as alerts from "./alerts"
 import * as errors from "./errors"
-import * as transfer from "./transfer"
+import * as transport from "./transport"
 // import { preferences, save, load } from "../modules/app/sharedPreferences";
 // import { memory } from "system";
-import asap from "fitbit-asap/app";
 import * as watchDog from "./watchDog";
-
 
 let main = document.getElementById("main");
 let sgv = document.getElementById("sgv");
@@ -144,6 +140,7 @@ let updateData = (d) => {
  * Handle data receivers. We use ASAP for small payloads, but
  * fallback to files for large payloads.
  */
+/*
 asap.onmessage = function (evt) {
 	if (evt.command === 'file') {
 		console.log('Receiver payload from ASAP interface');
@@ -164,12 +161,16 @@ inbox.onnewfile = () => {
 			update();
 		}
 	} while (fileName);
-};
+};*/
 
+transport.onPayload((data) => {
+	updateData(data);
+	update();
+});
 
 
 function update() {
-	console.log('app - update()');
+	console.log('Update Running...');
 	//console.warn("JS memory: " + memory.js.used + "/" + memory.js.total);
 	watchDog.reportMemory();
 	let heartrate = userActivity.get().heartRate;
@@ -184,7 +185,7 @@ function update() {
 
 
 	if (data) {
-		console.warn('GOT DATA');
+		//console.warn('GOT DATA');
 		batteryLevel.width = batteryLevels.get().level;
 		batteryLevel.style.fill = batteryLevels.get().color;
 		batteryPercent.text = '' + batteryLevels.get().percent + '%';
@@ -389,7 +390,7 @@ exitLargeGraph.onclick = () => {
 
 timeElement.onclick = () => {
 	console.log("FORCE Activated!");
-	transfer.send(dataToSend)
+	transport.doCompanionTransport(dataToSend)
 	vibration.start('bump');
 	arrows.href = '../resources/img/arrows/loading.png';
 	largeGraphArrows.href = '../resources/img/arrows/loading.png';
@@ -399,10 +400,10 @@ timeElement.onclick = () => {
 
 // wait 2 seconds
 setTimeout(function () {
-	transfer.send(dataToSend);
+	transport.doCompanionTransport(dataToSend);
 }, 1500);
 setInterval(function () {
-	transfer.send(dataToSend);
+	transport.doCompanionTransport(dataToSend);
 }, 180000);
 
 

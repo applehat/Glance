@@ -11,14 +11,27 @@
  * ------------------------------------------------
  */
 
-
-
-
 import { memory } from "system";
 
-
-console.log('\n\n\n\n\nYEEEEEEEEEEEEET\n\n\n\n\n\n\n');
+console.info('--WATCHDOG INITIATED--');
 
 export function reportMemory() {
-	console.log("JS memory: " + memory.js.used + "/" + memory.js.total);
+	let percent = Math.floor((memory.js.used / memory.js.total) * 100);
+	console.info(`--WATCHDOG-- JS Memory Usage: ${percent}% (${memory.js.used}/${memory.js.total})`);
 }
+
+memory.monitor.addEventListener('onmemorypressurechange',() => {
+	let msg = `--WATCHDOG-- Memory Pressure Changed: ${memory.monitor.pressure}`;
+	switch (memory.monitor.pressure) {
+		case "normal":
+			console.log(msg);
+			break;
+		case "high":
+			console.warn(msg);
+			break;
+		case "critical":
+			console.error(msg);
+			break;
+	}
+	reportMemory();
+})

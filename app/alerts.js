@@ -34,7 +34,7 @@ let i18n = (key) => {
 export function check(bg, settings, DISABLE_ALERTS, currentBG, loopstatus, timeSenseLastSGV) {
 	alertArrows.href = '../resources/img/arrows/' + bg.direction + '.png';
 	alertArrows.style.display = 'inline';
-	console.log('app - Alerts - Check()')
+	//console.log('app - Alerts - Check()')
 	sgv.style.fill = "#75bd78";
 	largeGraphsSgv.style.fill = "#75bd78";
 	errorLine.style.fill = "#75bd78";
