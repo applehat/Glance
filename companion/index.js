@@ -13,14 +13,14 @@
 
 import { settingsStorage } from "settings";
 
-import * as settings from "../modules/companion/settings.js";
-import * as transfer from "../modules/companion/transfer.js";
-import * as fetch from "../modules/companion/fetch.js";
-import * as standardize from "../modules/companion/standardize.js";
-// import Weather from "../modules/companion/weather.js";
-import Logs from "../modules/companion/logs.js";
+import * as settings from "./settings";
+import * as transfer from "./transfer";
+import * as fetch from "./fetch";
+import * as standardize from "./standardize";
+// import Weather from "./weather.js";
+import Logs from "./logs";
 import sizeof from 'object-sizeof';
-import * as dexcom from "../modules/companion/dexcom.js";
+import * as dexcom from "./dexcom";
 
 import asap from "fitbit-asap/companion"
 import { me } from "companion";

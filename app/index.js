@@ -17,19 +17,18 @@ import document from "document";
 import { inbox } from "file-transfer";
 import fs from "fs";
 import { vibration } from "haptics";
-import DateTime from "../modules/app/dateTime.js";
-import * as batteryLevels from "../modules/app/batteryLevels.js";
-import * as graph from "../modules/app/bloodline.js"
-import * as userActivity from "../modules/app/userActivity.js"
-import * as alerts from "../modules/app/alerts.js"
-import * as errors from "../modules/app/errors.js"
-import * as transfer from "../modules/app/transfer.js"
+import * as dateTime from "../common/dateTime";
+import * as batteryLevels from "./batteryLevels";
+import * as graph from "./bloodline"
+import * as userActivity from "./userActivity"
+import * as alerts from "./alerts"
+import * as errors from "./errors"
+import * as transfer from "./transfer"
 // import { preferences, save, load } from "../modules/app/sharedPreferences";
 // import { memory } from "system";
 import asap from "fitbit-asap/app";
-import * as watchDog from "../modules/app/watchDog";
+import * as watchDog from "./watchDog";
 
-const dateTime = new DateTime();
 
 let main = document.getElementById("main");
 let sgv = document.getElementById("sgv");
